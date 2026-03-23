@@ -221,32 +221,32 @@ cleanup:
     	    printf("Failed to dealloc application data memory on Flex IO heap\n");
         }
     }
-	for (size_t i = 0; i < scheduler_num; i++) {    
-		if (sch_ctx[i].app_data_daddr && flexio_buf_dev_free(app_ctx.flexio_process, sch_ctx[i].app_data_daddr)) {
-		    printf("Failed to dealloc application data memory on Flex IO heap\n");
-		}
-	}
+	// for (size_t i = 0; i < scheduler_num; i++) {    
+	// 	if (sch_ctx[i].app_data_daddr && flexio_buf_dev_free(app_ctx.flexio_process, sch_ctx[i].app_data_daddr)) {
+	// 	    printf("Failed to dealloc application data memory on Flex IO heap\n");
+	// 	}
+	// }
 
-	for (size_t i = 0; i < scheduler_num; i++) { 
-		for (size_t j = 0; j < tenant_per_scheduler; j++) { 
-			/* Clean up rx rule if created */
-			if (sch_ctx[i].queues[j].rx_flow_rule) {
-				if (destroy_rule(sch_ctx[i].queues[j].rx_flow_rule)) {
-					printf("Failed to destroy rx rule\n");
-				}
-			}
-			if (sch_ctx[i].queues[j].tx_flow_rule) {
-				if (destroy_rule(sch_ctx[i].queues[j].tx_flow_rule)) {
-					printf("Failed to destroy tx rule\n");
-				}
-			}
-			if (sch_ctx[i].queues[j].tx_flow_rule2) {
-				if (destroy_rule(sch_ctx[i].queues[j].tx_flow_rule2)) {
-					printf("Failed to destroy tx rule2\n");
-				}
-			}
-		}
-	}
+	// for (size_t i = 0; i < scheduler_num; i++) { 
+	// 	for (size_t j = 0; j < tenant_per_scheduler; j++) { 
+	// 		/* Clean up rx rule if created */
+	// 		if (sch_ctx[i].queues[j].rx_flow_rule) {
+	// 			if (destroy_rule(sch_ctx[i].queues[j].rx_flow_rule)) {
+	// 				printf("Failed to destroy rx rule\n");
+	// 			}
+	// 		}
+	// 		if (sch_ctx[i].queues[j].tx_flow_rule) {
+	// 			if (destroy_rule(sch_ctx[i].queues[j].tx_flow_rule)) {
+	// 				printf("Failed to destroy tx rule\n");
+	// 			}
+	// 		}
+	// 		if (sch_ctx[i].queues[j].tx_flow_rule2) {
+	// 			if (destroy_rule(sch_ctx[i].queues[j].tx_flow_rule2)) {
+	// 				printf("Failed to destroy tx rule2\n");
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	for (size_t i = 0; i < threads_num; i++) { 
         /* Clean up rx rule if created */
@@ -290,20 +290,20 @@ cleanup:
 		}
 	}
 
-	for (size_t i = 0; i < scheduler_num; i++) {
-		/* Clean up previously allocated SQ */
-		if (clean_up_app_sq(&app_ctx, &(sch_ctx[i]))) {
-			printf("Failed to destroy sq\n");
-		}
+	// for (size_t i = 0; i < scheduler_num; i++) {
+	// 	/* Clean up previously allocated SQ */
+	// 	if (clean_up_app_sq(&app_ctx, &(sch_ctx[i]))) {
+	// 		printf("Failed to destroy sq\n");
+	// 	}
 
-		/* Clean up previously allocated RQ */
-		if (clean_up_app_rq(&app_ctx, &(sch_ctx[i]))) {
-			printf("Failed to destroy cq\n");
-		}
-		if (sch_ctx[i].event_handler && flexio_event_handler_destroy(sch_ctx[i].event_handler)) {
-			printf("Failed to destroy event handler\n");
-		}
-	}
+	// 	/* Clean up previously allocated RQ */
+	// 	if (clean_up_app_rq(&app_ctx, &(sch_ctx[i]))) {
+	// 		printf("Failed to destroy cq\n");
+	// 	}
+	// 	if (sch_ctx[i].event_handler && flexio_event_handler_destroy(sch_ctx[i].event_handler)) {
+	// 		printf("Failed to destroy event handler\n");
+	// 	}
+	// }
 
 	if (app_ctx.stream && flexio_msg_stream_destroy(app_ctx.stream)) {
 		printf("Failed to destroy device messaging environment\n");
