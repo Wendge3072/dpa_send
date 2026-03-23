@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         begin_thread = atoi(argv[5]);
     }
 
-	if (begin_thread < (tenants_num + 16) / 16 * 16){
+	if (begin_thread < (threads_num + 16) / 16 * 16){
 		printf("begin_thread should be a multiple of 16 and not smaller than the total number of threads, which is %zu\n", threads_num);
 		return -1;
 	}
