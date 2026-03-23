@@ -69,8 +69,8 @@ meson_build_type = get_option('buildtype')
 dpacc_options = ['-mcpu=nv-dpa-' + get_option('cpu')]
 
 # dpacc_options = []
-#dpacc_devicecc_array += ['-O3']
-#dpacc_options += ['-flto']
+# dpacc_devicecc_array += ['-O3']
+# dpacc_options += ['-flto']
 if (meson_build_type == 'debug')
 	dpacc_devicecc_array += ['-g', '-O0', '-gdwarf-4']
 elif (meson_build_type == 'debugoptimized' or meson_build_type == '')
@@ -93,7 +93,7 @@ endif
 
 # List of the samples
 samples = [
-	'packet_processor',
+	'packet_sender',
 ]
 
 # Build common host and device side libraries

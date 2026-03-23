@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <dpaintrin.h>
 /* Shared header file for packet processor sample */
-#include "../flexio_pp_com.h"
+#include "../flexio_ps_com.h"
 
 struct flexio_dpa_dev_queue {
 	/* lkey - local memory key */

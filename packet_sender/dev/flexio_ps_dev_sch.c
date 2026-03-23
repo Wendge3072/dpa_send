@@ -1,4 +1,4 @@
-#include "flexio_pp_dev_utils.h"
+#include "flexio_ps_dev_utils.h"
 
 
 /* Initialize the app_ctx structure from the host data.

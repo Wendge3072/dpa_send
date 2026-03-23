@@ -28,13 +28,30 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# The meson file for build packet processor host side sample
+# The meson file for build packet sender device side sample application
 
-# Build sample as executable application
-executable('flexio_packet_processor',
-	['flexio_pp_host_main.c', 'flexio_pp_host_utils.c'],
-	c_args: '-DDEV_APP_NAME='+dev_app_name,
-	native: true,
-	dependencies: [ibverbs_dep, mlx5_dep, flexio_dep, sample_device_dep],
-	link_depends: sample_dev_target
-)
+sample_dev_srcs =  ['flexio_ps_dev_tnt1.c', 'flexio_ps_dev_tnt2.c', 'flexio_ps_dev_sch.c', 'flexio_ps_dev_utils.c']
+app_out_name = dev_app_name + '.a'
+
+# Device side DPA application build by meson command custom_target
+# through doca_build_dpacc.sh script
+sample_dev_target = custom_target('apps_' + dev_app_name,
+				  command: [build_dpacc, '--application',
+					    '--app_name', dev_app_name,
+					    '--srcs', '@INPUT@',
+					    '--dpacc_build_dir', '@OUTDIR@',
+					    '--additional_dpacc_options', dpacc_options,
+					    '--external_cc_options',
+					    ','.join(dpacc_devicecc_array),
+					    '--additional_include_directories',
+					    common_dev_include_dir,
+					    '--additional_ld_libs', common_dev_name,
+					    '--additional_lib_paths', common_dev_lib_path],
+				  output: app_out_name,
+				  input: sample_dev_srcs,
+				  depends: [common_dev_target],
+				  depend_files: shared_include_files)
+
+# Create dependency from DPA application for link with host side sample
+sample_device_dep = declare_dependency(link_args :
+                                       join_paths(meson.current_build_dir(), app_out_name))

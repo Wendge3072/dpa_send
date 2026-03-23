@@ -28,9 +28,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# The meson file for build packet processor sample
+# The meson file for build packet processor host side sample
 
-dev_app_name = 'flexio_pp_app'
-shared_include_files = [join_paths(meson.current_source_dir(),'flexio_pp_com.h')]
-subdir('dev')
-subdir('host')
+# Build sample as executable application
+executable('flexio_packet_sender',
+	['flexio_ps_host_main.c', 'flexio_ps_host_utils.c'],
+	c_args: '-DDEV_APP_NAME='+dev_app_name,
+	native: true,
+	dependencies: [ibverbs_dep, mlx5_dep, flexio_dep, sample_device_dep],
+	link_depends: sample_dev_target
+)

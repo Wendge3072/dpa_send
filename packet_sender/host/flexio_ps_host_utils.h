@@ -17,7 +17,7 @@
 #include <libflexio/flexio.h>
 
 /* Common header for communication between host and DPA. */
-#include "../flexio_pp_com.h"
+#include "../flexio_ps_com.h"
 
 struct flow_matcher {
 	struct mlx5dv_dr_domain *dr_domain;

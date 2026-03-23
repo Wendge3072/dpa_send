@@ -1,4 +1,4 @@
-#include "flexio_pp_host_utils.h"
+#include "flexio_ps_host_utils.h"
 
 size_t scheduler_num = 1;
 size_t tenant_per_scheduler = 2;

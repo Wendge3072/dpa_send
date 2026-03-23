@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#include "flexio_pp_host_utils.h"
+#include "flexio_ps_host_utils.h"
 
 int app_open_ibv_ctx(struct app_context *app_ctx, char *device)
 {

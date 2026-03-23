@@ -1,4 +1,4 @@
-#include "flexio_pp_dev_utils.h"
+#include "flexio_ps_dev_utils.h"
 
 // threads and scheduler context
 struct dpa_thread_context dpa_thds_ctx[190];

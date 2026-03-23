@@ -1,4 +1,4 @@
-#include "flexio_pp_dev_utils.h"
+#include "flexio_ps_dev_utils.h"
 
 flexio_dev_event_handler_t flexio_pp_dev_2;
 __dpa_global__ void flexio_pp_dev_2(uint64_t thread_arg)
