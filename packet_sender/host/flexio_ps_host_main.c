@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	threads_num = tenants_num * threads_num_per_tenant;
 
 	if (argc > 4) {
-        begin_thread = atoi(argv[5]);
+        begin_thread = atoi(argv[4]);
     }
 
 	if (begin_thread < (threads_num + 15) / 16 * 16){
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	}
 
 	if (argc > 5) {
-		buffer_location = atoi(argv[6]);
+		buffer_location = atoi(argv[5]);
 	}
 
 	char buf[2];
