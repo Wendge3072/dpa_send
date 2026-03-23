@@ -160,7 +160,7 @@ __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data)
     dpa_thds_ctx[i].sq_ctx.sq_wqe_seg_idx = 0;
 	dpa_thds_ctx[i].rq_ctx.rqd_dpa_addr = data_from_host->rq_transf.wqd_daddr;
 	dpa_thds_ctx[i].sq_ctx.sqd_dpa_addr = data_from_host->sq_transf.wqd_daddr;
-	while(1){};
+	// while(1){};
 	if (i > 0){
 		uint32_t cqn = dpa_thds_ctx[i - 1].rq_cq_ctx.cq_number;
 		flexio_dev_msix_send(dtctx, cqn);
