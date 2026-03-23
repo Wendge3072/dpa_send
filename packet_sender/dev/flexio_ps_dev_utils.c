@@ -165,7 +165,7 @@ __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data)
 		flexio_dev_msix_send(dtctx, cqn);
 		flexio_dev_print("thd %d sent msix for cq_num %u\n", i, cqn);
 	}
-	while(true){};
+	while(1){};
 	// flexio_dev_status_t ret;
 	// ret = flexio_dev_window_config(dtctx, (uint16_t)dpa_thds_ctx[i].window_id, data_from_host->result_buffer_mkey_id);
 	// if (ret != FLEXIO_DEV_STATUS_SUCCESS) {
