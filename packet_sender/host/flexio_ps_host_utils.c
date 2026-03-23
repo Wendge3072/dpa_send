@@ -204,7 +204,7 @@ static int rq_mem_alloc(struct app_context* app_ctx, struct thread_context* thd_
 	return 0;
 }
 
-int create_app_sq(struct app_context *app_ctx, struct thread_context* thd_ctx, size_t use_copy)
+int create_app_sq(struct app_context *app_ctx, struct thread_context* thd_ctx)
 {
 	/* Pointer to the application Flex IO process (ease of use). */
 	struct flexio_process *app_fp = app_ctx->flexio_process;
@@ -468,7 +468,7 @@ int create_app_rq(struct app_context *app_ctx, struct thread_context* thd_ctx)
 // ----==== h2d data copy functions ====----
 
 int copy_sch_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd_ctx, 
-	int buffer_location, size_t use_copy)
+	int buffer_location)
 {
 	/* Size of application information struct. */
 	uint64_t struct_bsize = sizeof(struct host2dev_packet_processor_data_sch);
@@ -502,7 +502,6 @@ int copy_sch_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
 	h2d_data->tenant_num_per_scheduler = tenant_per_scheduler;
 	printf("copied schedular id %d\n", h2d_data->sch_id);
 	h2d_data->buffer_location = buffer_location;
-	h2d_data->use_copy = use_copy;
 	h2d_data->window_id = flexio_window_get_id(app_ctx->flexio_window);
 	if (h2d_data->window_id == 0) {
 		printf("failed to allocate window id.\n");
@@ -528,7 +527,7 @@ int copy_sch_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
 }
 
 int copy_thd_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd_ctx, 
-	int buffer_location, size_t use_copy)
+	int buffer_location, uint64_t MAC)
 {
 	/* Size of application information struct. */
 	uint64_t struct_bsize = sizeof(struct host2dev_packet_processor_data_thd);
@@ -558,7 +557,7 @@ int copy_thd_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
 	h2d_data->thd_id = thd_ctx->thd_id;
 	printf("copied thread id %d\n", h2d_data->thd_id);
 	h2d_data->buffer_location = buffer_location;
-	h2d_data->use_copy = use_copy;
+	h2d_data->MAC = MAC;
 	h2d_data->window_id = flexio_window_get_id(app_ctx->flexio_window);
 	if (h2d_data->window_id == 0) {
 		printf("failed to allocate window id.\n");

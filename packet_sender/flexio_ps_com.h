@@ -131,8 +131,8 @@ struct host2dev_packet_processor_data_thd {
 	// flexio_uintptr_t dpa_thread_running_bm_daddr;
 
 	int thd_id;
-	int buffer_location;
-	int use_copy;
+	int buffer_location;;
+	uint64_t MAC;
 	uint32_t window_id;
 	uint32_t result_buffer_mkey_id;
 	void* result_buffer;
@@ -157,7 +157,6 @@ struct host2dev_packet_processor_data_sch {
 	uint8_t not_first_run;
 	int sch_id;
 	int buffer_location;
-	int use_copy;
 	uint32_t window_id;
 	uint32_t result_buffer_mkey_id;
 	void* result_buffer;

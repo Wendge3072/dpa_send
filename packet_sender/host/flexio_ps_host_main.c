@@ -1,14 +1,11 @@
 #include "flexio_ps_host_utils.h"
 
-size_t scheduler_num = 1;
-size_t tenant_per_scheduler = 2;
-size_t threads_num_per_sch_tnt = 4;
-size_t threads_num_per_scheduler = 8;
+size_t tenants_num = 2;
+size_t threads_num_per_tenant = 8;
 size_t threads_num = 0;
 size_t begin_thread = 16;
 uint64_t DMAC = 0xa088c2320440;
 size_t buffer_location = 0;
-size_t use_copy = 1;
 
 // #define nic_mode 1
 /* Main host side function.
@@ -17,29 +14,25 @@ size_t use_copy = 1;
 int main(int argc, char **argv)
 {
 	if (argc > 2) {
-		scheduler_num = atoi(argv[2]);
+		tenants_num = atoi(argv[2]);
 	}
 
     if (argc > 3) {
-        tenant_per_scheduler = atoi(argv[3]);
+        threads_num_per_tenant = atoi(argv[3]);
     }
+
+	threads_num = tenants_num * threads_num_per_tenant;
 
 	if (argc > 4) {
-		threads_num_per_sch_tnt = atoi(argv[4]);
-	}
-
-	threads_num_per_scheduler = tenant_per_scheduler * threads_num_per_sch_tnt;
-	threads_num = threads_num_per_scheduler * scheduler_num;
-
-	if (argc > 5) {
         begin_thread = atoi(argv[5]);
-		// if (begin_thread < scheduler_num) {
-		// 	printf("Invalid begin_thread value. It must be at least %d.\n", scheduler_num);
-		// 	return -1;
-		// }
     }
 
-	if (argc > 6) {
+	if (begin_thread < (tenants_num + 16) / 16 * 16){
+		printf("begin_thread should be a multiple of 16 and not smaller than the total number of threads, which is %zu\n", threads_num);
+		return -1;
+	}
+
+	if (argc > 5) {
 		buffer_location = atoi(argv[6]);
 	}
 
@@ -49,7 +42,7 @@ int main(int argc, char **argv)
 	struct flexio_process_attr process_attr = { NULL, 0 };
 	struct app_context app_ctx = {};
 	struct thread_context* thd_ctx = NULL;
-	struct thread_context* sch_ctx = NULL;
+	// struct thread_context* sch_ctx = NULL;
 
 	printf("Welcome to Flex IO SDK packet sending app.\n");
 
@@ -67,19 +60,19 @@ int main(int argc, char **argv)
 		thd_ctx[i].num_queues = 1;
 	}
 
-	sch_ctx = malloc(sizeof(struct thread_context) * scheduler_num);
-	if (sch_ctx == NULL) {
-		printf("malloc scheduler context failed\n");
-		return -1;
-	}
-	for (int i = 0; i < scheduler_num; i++) {
-		sch_ctx[i].queues = malloc(sizeof(struct flexio_queues) * threads_num_per_scheduler);
-		if (sch_ctx[i].queues == NULL) {
-			printf("malloc scheduler queue context failed\n");
-			return -1;
-		}
-		sch_ctx[i].num_queues = threads_num_per_scheduler;
-	}
+	// sch_ctx = malloc(sizeof(struct thread_context) * tenants_num);
+	// if (sch_ctx == NULL) {
+	// 	printf("malloc scheduler context failed\n");
+	// 	return -1;
+	// }
+	// for (int i = 0; i < tenants_num; i++) {
+	// 	sch_ctx[i].queues = malloc(sizeof(struct flexio_queues) * threads_num_per_tenant);
+	// 	if (sch_ctx[i].queues == NULL) {
+	// 		printf("malloc scheduler queue context failed\n");
+	// 		return -1;
+	// 	}
+	// 	sch_ctx[i].num_queues = threads_num_per_tenant;
+	// }
 
 	if (geteuid()) {
 		printf("Failed - the application must run with root privileges\n");
@@ -137,80 +130,11 @@ int main(int argc, char **argv)
 
 #define THREAD_NUM 190
 #define THREAD_RUNNING_BITMAP 32
-	/* Create thread running bitmap on the DPA heap */
-	// flexio_buf_dev_alloc(app_ctx.flexio_process, THREAD_RUNNING_BITMAP, &app_ctx.dpa_thread_running_bm_daddr);
-
-	for (int i = 0; i < scheduler_num; i++) {
-		struct flexio_event_handler_attr handler_attr = {0};
-		handler_attr.host_stub_func = flexio_scheduler_handle;
-		handler_attr.affinity.type = FLEXIO_AFFINITY_STRICT;
-		handler_attr.affinity.id = 0 + i;
-
-		ret = flexio_event_handler_create(app_ctx.flexio_process, &handler_attr, &(sch_ctx[i].event_handler));
-		if (ret != FLEXIO_STATUS_SUCCESS) {
-			printf("Fail tp create event handler.\n");
-			goto cleanup;
-		}
-		void* tmp_ptr = NULL;
-		size_t needed_buffer_size = SPEED_RESULT_SIZE;
-		size_t mmap_size = needed_buffer_size + (64 - 1);
-		mmap_size -= mmap_size % 64;
-		tmp_ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
-		if (tmp_ptr == NULL) {
-			printf("Failed to allocate host buffer\n");
-			return -1;
-		}
-		memset(tmp_ptr, 0, mmap_size);
-		sch_ctx[i].mr = ibv_reg_mr(app_ctx.process_pd, tmp_ptr, mmap_size, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ | IBV_ACCESS_REMOTE_ATOMIC);
-		if (sch_ctx[i].mr == NULL) {
-			printf("Failed to register MR\n");
-			return -1;
-		}
-		sch_ctx[i].result_buffer_mkey_id = sch_ctx[i].mr->lkey;
-		sch_ctx[i].result_buffer = (char*)tmp_ptr;
-		sch_ctx[i].thd_id = i;
-		if (create_app_rq(&(app_ctx), &(sch_ctx[i]))) {
-			printf("Failed to create Flex EQ.\n");
-			err = -1;
-			goto cleanup;
-		}
-		if (create_app_sq(&(app_ctx), &(sch_ctx[i]), use_copy)) {
-			printf("Failed to create Flex SQ.\n");
-			err = -1;
-			goto cleanup;
-		}
-
-
-		for (int j = 0; j < threads_num_per_scheduler; j++) {
-			uint64_t cur_dmac = DMAC + i * threads_num_per_scheduler + j;
-			// uint64_t cur_dmac = DMAC + (uint64_t)(j * 2 + (i & 1));
-
-			sch_ctx[i].queues[j].rq_tir_obj = flexio_rq_get_tir(sch_ctx[i].queues[j].flexio_rq_ptr);
-			if (sch_ctx[i].queues[j].rq_tir_obj == NULL) {
-				printf("Fail creating rq_tir_obj (errno %d)\n", errno);
-				goto cleanup;
-			}
-			sch_ctx[i].queues[j].rx_flow_rule = create_rule_rx_mac_match(app_ctx.rx_matcher, sch_ctx[i].queues[j].rq_tir_obj, cur_dmac);
-			sch_ctx[i].queues[j].tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, cur_dmac);
-			sch_ctx[i].queues[j].tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, cur_dmac);
-		}
-
-		if (copy_sch_data_to_dpa(&app_ctx, &(sch_ctx[i]), buffer_location, use_copy)) {
-			printf("Failed to copy application data to DPA.\n");
-			err = -1;
-			goto cleanup;
-		}
-
-		if (flexio_event_handler_run(sch_ctx[i].event_handler, sch_ctx[i].app_data_daddr)) {
-			printf("Failed to run event handler.\n");
-			err = -1;
-			goto cleanup;
-		}
-	}
 
 	for (int i = 0; i < threads_num; i++) {
 		struct flexio_event_handler_attr handler_attr = {0};
 		uint64_t rpc_ret_val = 0;
+		uint64_t cur_dmac = DMAC + i;
 
 		// if(i % 2)
         // 	handler_attr.host_stub_func = flexio_pp_dev_2;
@@ -251,13 +175,22 @@ int main(int argc, char **argv)
 			goto cleanup;
 		}
 
-		if (create_app_sq(&(app_ctx), &(thd_ctx[i]), use_copy)) {
+		if (create_app_sq(&(app_ctx), &(thd_ctx[i]))) {
 			printf("Failed to create Flex SQ.\n");
 			err = -1;
 			goto cleanup;
 		}
+	
+		// thd_ctx[i].queues->rq_tir_obj = flexio_rq_get_tir(thd_ctx[i].queues->flexio_rq_ptr);
+		// if (thd_ctx[i].queues->rq_tir_obj == NULL) {
+		// 	printf("Fail creating rq_tir_obj (errno %d)\n", errno);
+		// 	goto cleanup;
+		// }
+		// thd_ctx[i].queues->rx_flow_rule = create_rule_rx_mac_match(app_ctx.rx_matcher, thd_ctx[i].queues->rq_tir_obj, cur_dmac);	
+		thd_ctx[i].queues->tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, cur_dmac);
+		thd_ctx[i].queues->tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, cur_dmac);
 
-		if (copy_thd_data_to_dpa(&app_ctx, &(thd_ctx[i]), buffer_location, use_copy)) {
+		if (copy_thd_data_to_dpa(&app_ctx, &(thd_ctx[i]), buffer_location, cur_dmac)) {
 			printf("Failed to copy application data to DPA.\n");
 			err = -1;
 			goto cleanup;

@@ -170,7 +170,6 @@ extern size_t threads_num;
 extern size_t begin_thread;
 extern uint64_t DMAC;
 extern size_t buffer_location;
-extern size_t use_copy;
 
 /* Open ibv device
  * Returns 0 on success and -1 if the destroy was failed.
@@ -184,7 +183,7 @@ int app_open_ibv_ctx(struct app_context *app_ctx, char *device);
  * Returns 0 on success and -1 if the allocation fails.
  * app_ctx - app_ctx - pointer to app_context structure.
  */
-int create_app_sq(struct app_context *app_ctx, struct thread_context* thd_ctx, size_t use_copy);
+int create_app_sq(struct app_context *app_ctx, struct thread_context* thd_ctx);
 
 /* Create an RQ over the DPA for receiving packets on DPA.
  * A CQ is also created for the RQ.
@@ -200,7 +199,7 @@ int create_app_rq(struct app_context *app_ctx, struct thread_context* thd_ctx);
  * app_ctx - app_ctx - pointer to app_context structure.
  */
 int copy_sch_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd_ctx, 
-	int buffer_location, size_t use_copy);
+	int buffer_location);
 
 /* Copy application information to DPA.
  * DPA side needs queue information in order to process the packets.
@@ -209,7 +208,7 @@ int copy_sch_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
  * app_ctx - app_ctx - pointer to app_context structure.
  */
 int copy_thd_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd_ctx, 
-	int buffer_location, size_t use_copy);
+	int buffer_location, uint64_t MAC);
 
 /* Clean up previously allocated RQ
  * Returns 0 on success and -1 if the destroy failed.
