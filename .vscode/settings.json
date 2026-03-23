@@ -1,0 +1,15 @@
+{
+    "C_Cpp.default.includePath": [
+        "/opt/mellanox/flexio/include/**",
+        "/opt/mellanox/doca/lib/aarch64-linux-gnu/dpa_llvm/lib/clang/15.0.7/**",
+    ],
+    "files.associations": {
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "mman.h": "c",
+        "functional": "c",
+        "flexio.h": "c"
+    },
+    "mesonbuild.configureOnOpen": false
+}
