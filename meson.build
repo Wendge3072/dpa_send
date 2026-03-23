@@ -66,7 +66,7 @@ dpacc_devicecc_array = ['-DE_MODE_LE',
 # according of optimization type of host side
 meson_build_type = get_option('buildtype')
 
-dpacc_options = ['-mcpu=nv-dpa-' + get_option('cpu')]
+dpacc_options = ['-mcpu=nv-dpa-bf3']
 
 # dpacc_options = []
 # dpacc_devicecc_array += ['-O3']
