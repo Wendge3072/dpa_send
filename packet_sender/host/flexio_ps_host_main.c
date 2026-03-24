@@ -4,7 +4,7 @@ size_t tenants_num = 2;
 size_t threads_num_per_tenant = 8;
 size_t threads_num = 0;
 size_t begin_thread = 16;
-static struct ether_addr DMAC = { {0xa0, 0x88, 0xc2, 0x32, 0x04, 0x40} };
+struct ether_addr DMAC = { {0xa0, 0x88, 0xc2, 0x32, 0x04, 0x40} };
 size_t buffer_location = 0;
 
 // #define nic_mode 1
@@ -139,6 +139,12 @@ int main(int argc, char **argv)
 		mac_0 += i;
 		cur_dmac.addr_bytes[4] = (mac_0 >> 8) & 0xFF;
 		cur_dmac.addr_bytes[5] = mac_0 & 0xFF;
+		uint64_t dmac_int = (cur_dmac.addr_bytes[0] << 40) | 
+							(cur_dmac.addr_bytes[1] << 32) |
+							(cur_dmac.addr_bytes[2] << 24) |
+							(cur_dmac.addr_bytes[3] << 16) |
+							(cur_dmac.addr_bytes[4] <<  8) |
+							(cur_dmac.addr_bytes[5] <<  0);
 
 		// if(i % 2)
         // 	handler_attr.host_stub_func = flexio_pp_dev_2;
@@ -190,9 +196,9 @@ int main(int argc, char **argv)
 		// 	printf("Fail creating rq_tir_obj (errno %d)\n", errno);
 		// 	goto cleanup;
 		// }
-		// thd_ctx[i].queues->rx_flow_rule = create_rule_rx_mac_match(app_ctx.rx_matcher, thd_ctx[i].queues->rq_tir_obj, cur_dmac);	
-		thd_ctx[i].queues->tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, cur_dmac);
-		thd_ctx[i].queues->tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, cur_dmac);
+		// thd_ctx[i].queues->rx_flow_rule = create_rule_rx_mac_match(app_ctx.rx_matcher, thd_ctx[i].queues->rq_tir_obj, dmac_int);	
+		thd_ctx[i].queues->tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, dmac_int);
+		thd_ctx[i].queues->tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, dmac_int);
 
 		if (copy_thd_data_to_dpa(&app_ctx, &(thd_ctx[i]), buffer_location, cur_dmac, 512)) {
 			printf("Failed to copy application data to DPA.\n");
