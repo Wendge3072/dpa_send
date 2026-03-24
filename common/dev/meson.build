@@ -40,7 +40,7 @@ dpacc_mode = '--library'
 common_dev_include_dir = meson.current_source_dir()
 common_dev_lib_path = meson.current_build_dir()
 
-common_dev_includes = [join_paths(common_dev_include_dir, 'com_dev.h')]
+common_dev_includes = [join_paths(common_dev_include_dir, 'com_dev.h'), join_paths(common_dev_include_dir, '../flexio_ps_com.h')]
 
 # Device side DPA library build by meson command custom_target
 # through doca_build_dpacc.sh script
