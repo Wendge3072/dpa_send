@@ -259,8 +259,7 @@ void send_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context*
 	char *sq_data = get_next_dte(&this_thd_ctx->dt_ctx, DATA_IDX_MASK, LOG_Q_DATA_ENTRY_BSIZE);
 	prepare_packet(this_thd_ctx, sq_data);
 	prepare_send_packet(this_thd_ctx, sq_data, this_thd_ctx->data_sz);
-	finish_send(dtctx, &this_thd_ctx->sq_ctx);
-	// Dst_MAC and index:
 	flexio_dev_print("dst_mac: %lx, index: %d\n", sq_data, this_thd_ctx->idx);
+	finish_send(dtctx, &this_thd_ctx->sq_ctx);
 	// finish_send(dtctx, this_thd_ctx);
 }
