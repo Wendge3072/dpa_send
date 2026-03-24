@@ -109,4 +109,6 @@ __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data);
 flexio_dev_rpc_handler_t dpa_send_first_pkt;
 __dpa_rpc__ uint64_t dpa_send_first_pkt(uint64_t data);
 
+__attribute__((unused)) static struct ether_addr SRC_ADDR = { {0x02, 0x01, 0x01, 0x01, 0x01, 0x01} };
+
 #endif /* __FLEXIO_PP_DEV_UTILS_H__ */
