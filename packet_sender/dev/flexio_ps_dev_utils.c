@@ -252,7 +252,7 @@ static void prepare_send_packet(struct dpa_thread_context* this_thd_ctx, void *d
 static void finish_send(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx){
 	/* Ring DB */
 	__dpa_thread_memory_writeback();
-	flexio_dev_qp_sq_ring_db(dtctx, ++this_thd_ctx->sq_ctx->sq_pi, this_thd_ctx->sq_ctx->sq_number);
+	flexio_dev_qp_sq_ring_db(dtctx, ++this_thd_ctx->sq_ctx.sq_pi, this_thd_ctx->sq_ctx.sq_number);
 }
 
 void send_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx){
