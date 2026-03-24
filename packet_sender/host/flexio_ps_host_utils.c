@@ -971,10 +971,10 @@ struct flow_rule *create_rule_tx_fwd_to_sws_table(struct flow_matcher *flow_matc
 	assert(match_value);
 
 	match_value->match_sz = MATCH_VAL_BSIZE;
-	// DEVX_SET(dr_match_spec, match_value->match_buf, smac_47_16, smac >> 16);
-	// DEVX_SET(dr_match_spec, match_value->match_buf, smac_15_0, smac % (1 << 16));
-	DEVX_SET(dr_match_spec, match_value->match_buf, dmac_47_16, smac >> 16);
-	DEVX_SET(dr_match_spec, match_value->match_buf, dmac_15_0, smac % (1 << 16));
+	DEVX_SET(dr_match_spec, match_value->match_buf, smac_47_16, smac >> 16);
+	DEVX_SET(dr_match_spec, match_value->match_buf, smac_15_0, smac % (1 << 16));
+	// DEVX_SET(dr_match_spec, match_value->match_buf, dmac_47_16, smac >> 16);
+	// DEVX_SET(dr_match_spec, match_value->match_buf, dmac_15_0, smac % (1 << 16));
 	flow_rule = create_flow_rule_tx_table(flow_match, match_value);
 	free(match_value);
 
