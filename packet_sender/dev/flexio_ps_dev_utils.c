@@ -215,7 +215,7 @@ static void prepare_packet(struct dpa_thread_context* this_thd_ctx, void *sq_dat
     eth_hdr = (struct ether_hdr *)sq_data;
     eth_hdr->src_addr = SRC_ADDR;
     eth_hdr->dst_addr = this_thd_ctx->MAC;
-	flexio_dev_print("prepare: dst_mac: %lx, index: %d\n", eth_hdr->dst_addr, this_thd_ctx->idx);
+	flexio_dev_print("prepare: dst_mac: %lx, index: %d\n", sq_data, this_thd_ctx->idx);
     eth_hdr->ether_type = cpu_to_be16(0x0800);
 
     ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
