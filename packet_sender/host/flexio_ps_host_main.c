@@ -5,6 +5,7 @@ size_t threads_num_per_tenant = 8;
 size_t threads_num = 0;
 size_t begin_thread = 16;
 struct ether_addr DMAC = { {0xa0, 0x88, 0xc2, 0x32, 0x04, 0x40} };
+uint64_t DMAC_int = 0xa088c2320440;
 size_t buffer_location = 0;
 
 // #define nic_mode 1
@@ -139,13 +140,7 @@ int main(int argc, char **argv)
 		mac_0 += i;
 		cur_dmac.addr_bytes[4] = (mac_0 >> 8) & 0xFF;
 		cur_dmac.addr_bytes[5] = mac_0 & 0xFF;
-		uint64_t dmac_int = (cur_dmac.addr_bytes[0] << 40) | 
-							(cur_dmac.addr_bytes[1] << 32) |
-							(cur_dmac.addr_bytes[2] << 24) |
-							(cur_dmac.addr_bytes[3] << 16) |
-							(cur_dmac.addr_bytes[4] <<  8) |
-							(cur_dmac.addr_bytes[5] <<  0);
-
+		uint64_t dmac_int = DMAC_int + i;
 		// if(i % 2)
         // 	handler_attr.host_stub_func = flexio_pp_dev_2;
 		// else
