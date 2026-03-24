@@ -141,6 +141,7 @@ int main(int argc, char **argv)
 		cur_dmac.addr_bytes[4] = (mac_0 >> 8) & 0xFF;
 		cur_dmac.addr_bytes[5] = mac_0 & 0xFF;
 		uint64_t dmac_int = DMAC_int + i;
+		printf("index: %d, dmac_int: %llx\n", i, dmac_int);
 		// if(i % 2)
         // 	handler_attr.host_stub_func = flexio_pp_dev_2;
 		// else
