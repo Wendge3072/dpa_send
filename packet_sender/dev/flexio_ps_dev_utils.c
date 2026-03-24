@@ -1,3 +1,4 @@
+#include "com_dev.h"
 #include "flexio_ps_dev_utils.h"
 
 // threads and scheduler context

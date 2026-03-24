@@ -2,7 +2,6 @@
 #define __FLEXIO_PP_DEV_UTILS_H__
 
 #include "com_dev.h"
-// #include "../../common/dev/com_dev.h"
 #include <libflexio-dev/flexio_dev_err.h>
 #include <libflexio-dev/flexio_dev_queue_access.h>
 #include <libflexio-dev/flexio_dev_debug.h>
