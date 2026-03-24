@@ -185,7 +185,9 @@ __dpa_rpc__ uint64_t dpa_send_first_pkt(uint64_t data){
 	struct flexio_dev_thread_ctx *dtctx;
 	flexio_dev_get_thread_ctx(&dtctx);
 	// flexio_dev_print("In dpa_send_first_pkt, thd_id: %d\n", *index);
-	send_packet(dtctx, &dpa_thds_ctx[*index]);
+	while(1){
+		send_packet(dtctx, &dpa_thds_ctx[*index]);
+	}
 	return 0;
 }
 
@@ -216,9 +218,9 @@ static void prepare_packet(struct dpa_thread_context* this_thd_ctx, void *sq_dat
     eth_hdr->src_addr = SRC_ADDR;
     eth_hdr->dst_addr = this_thd_ctx->MAC;
 	// 假设 dst_addr 是一个包含 6 个 uint8_t 的数组或可以通过强转当数组访问
-	uint8_t *mac = (uint8_t *)sq_data;
-	flexio_dev_print("prepare: dst_mac: %02x:%02x:%02x:%02x:%02x:%02x, index: %d\n", 
-					mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], this_thd_ctx->idx);
+	// uint8_t *mac = (uint8_t *)sq_data;
+	// flexio_dev_print("prepare: dst_mac: %02x:%02x:%02x:%02x:%02x:%02x, index: %d\n", 
+	// 				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], this_thd_ctx->idx);
     eth_hdr->ether_type = cpu_to_be16(0x0800);
 
     ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
