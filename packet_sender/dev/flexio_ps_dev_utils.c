@@ -220,7 +220,7 @@ static void prepare_packet(struct dpa_thread_context* this_thd_ctx, void *sq_dat
     ip_hdr->version_ihl = 0x45;
     ip_hdr->type_of_service = 0;
     ip_hdr->total_length = cpu_to_be16(sizeof(uint64_t) * 2 + sizeof(struct udp_hdr) + sizeof(struct ipv4_hdr));
-    ip_hdr->packet_id = cpu_to_be16(dev_ctx.send_index);
+    ip_hdr->packet_id = cpu_to_be16(0);
     ip_hdr->fragment_offset = cpu_to_be16(0);
     ip_hdr->time_to_live = 64;
     ip_hdr->next_proto_id = 17;
@@ -254,4 +254,3 @@ void send_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context*
 	prepare_send_packet(this_thd_ctx, sq_data, this_thd_ctx->data_sz);
 	finish_send(dtctx, &this_thd_ctx->sq_ctx);
 }
-

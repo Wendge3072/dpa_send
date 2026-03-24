@@ -103,6 +103,8 @@ void process_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_conte
 
 void pp_queue(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx, struct flexio_dpa_dev_queue* tenant);
 
+void send_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx);
+
 flexio_dev_rpc_handler_t thd_ctx_init;
 __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data);
 
