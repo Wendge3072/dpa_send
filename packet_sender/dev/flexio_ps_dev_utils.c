@@ -184,7 +184,7 @@ __dpa_rpc__ uint64_t dpa_send_first_pkt(uint64_t data){
 	int *index = (int *)data;
 	struct flexio_dev_thread_ctx *dtctx;
 	flexio_dev_get_thread_ctx(&dtctx);
-	flexio_dev_print("In dpa_send_first_pkt, thd_id: %d\n", *index);
+	// flexio_dev_print("In dpa_send_first_pkt, thd_id: %d\n", *index);
 	send_packet(dtctx, &dpa_thds_ctx[*index]);
 	return 0;
 }
