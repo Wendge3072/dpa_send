@@ -6,6 +6,7 @@ size_t threads_num = 0;
 size_t begin_thread = 16;
 struct ether_addr DMAC = { {0xa0, 0x88, 0xc2, 0x32, 0x04, 0x40} };
 uint64_t DMAC_int = 0xa088c2320440;
+uint64_t SMAC_int = 0x020101010101;
 size_t buffer_location = 0;
 
 // #define nic_mode 1
@@ -193,8 +194,8 @@ int main(int argc, char **argv)
 		// 	goto cleanup;
 		// }
 		// thd_ctx[i].queues->rx_flow_rule = create_rule_rx_mac_match(app_ctx.rx_matcher, thd_ctx[i].queues->rq_tir_obj, dmac_int);	
-		thd_ctx[i].queues->tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, dmac_int);
-		thd_ctx[i].queues->tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, dmac_int);
+		thd_ctx[i].queues->tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, SMAC_int);
+		thd_ctx[i].queues->tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, SMAC_int);
 
 		if (copy_thd_data_to_dpa(&app_ctx, &(thd_ctx[i]), buffer_location, cur_dmac, 512)) {
 			printf("Failed to copy application data to DPA.\n");
