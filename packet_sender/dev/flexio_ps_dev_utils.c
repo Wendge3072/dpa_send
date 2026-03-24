@@ -215,7 +215,10 @@ static void prepare_packet(struct dpa_thread_context* this_thd_ctx, void *sq_dat
     eth_hdr = (struct ether_hdr *)sq_data;
     eth_hdr->src_addr = SRC_ADDR;
     eth_hdr->dst_addr = this_thd_ctx->MAC;
-	flexio_dev_print("prepare: dst_mac: %lx, index: %d\n", *sq_data, this_thd_ctx->idx);
+	// 假设 dst_addr 是一个包含 6 个 uint8_t 的数组或可以通过强转当数组访问
+	uint8_t *mac = (uint8_t *)sq_data;
+	flexio_dev_print("prepare: dst_mac: %02x:%02x:%02x:%02x:%02x:%02x, index: %d\n", 
+					mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], this_thd_ctx->idx);
     eth_hdr->ether_type = cpu_to_be16(0x0800);
 
     ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
