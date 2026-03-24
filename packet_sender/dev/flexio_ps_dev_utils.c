@@ -243,21 +243,22 @@ static void prepare_send_packet(struct dpa_thread_context* this_thd_ctx, void *d
 	flexio_dev_swqe_seg_mem_ptr_data_set(swqe, data_sz, this_thd_ctx->rq_lkey, (uint64_t)data_addr);
 }
 
-// static void finish_send(struct flexio_dev_thread_ctx *dtctx, struct sq_ctx_t *sq_ctx){
-// 	/* Ring DB */
-// 	__dpa_thread_memory_writeback();
-// 	flexio_dev_qp_sq_ring_db(dtctx, ++sq_ctx->sq_pi, sq_ctx->sq_number);
-// }
-
-static void finish_send(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx){
+static void finish_send(struct flexio_dev_thread_ctx *dtctx, sq_ctx_t *sq_ctx){
 	/* Ring DB */
 	__dpa_thread_memory_writeback();
-	flexio_dev_qp_sq_ring_db(dtctx, ++this_thd_ctx->sq_ctx.sq_pi, this_thd_ctx->sq_ctx.sq_number);
+	flexio_dev_qp_sq_ring_db(dtctx, ++sq_ctx->sq_pi, sq_ctx->sq_number);
 }
+
+// static void finish_send(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx){
+// 	/* Ring DB */
+// 	__dpa_thread_memory_writeback();
+// 	flexio_dev_qp_sq_ring_db(dtctx, ++this_thd_ctx->sq_ctx.sq_pi, this_thd_ctx->sq_ctx.sq_number);
+// }
 
 void send_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx){
 	char *sq_data = get_next_dte(&this_thd_ctx->dt_ctx, DATA_IDX_MASK, LOG_Q_DATA_ENTRY_BSIZE);
 	prepare_packet(this_thd_ctx, sq_data);
 	prepare_send_packet(this_thd_ctx, sq_data, this_thd_ctx->data_sz);
-	finish_send(dtctx, this_thd_ctx);
+	finish_send(dtctx, &this_thd_ctx->sq_ctx);
+	// finish_send(dtctx, this_thd_ctx);
 }
