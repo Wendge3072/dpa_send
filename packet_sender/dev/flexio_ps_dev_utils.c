@@ -261,6 +261,6 @@ void send_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context*
 	prepare_send_packet(this_thd_ctx, sq_data, this_thd_ctx->data_sz);
 	finish_send(dtctx, &this_thd_ctx->sq_ctx);
 	// Dst_MAC and index:
-	flexio_dev_print("dst_mac: %lx, index: %d\n", sq_data + 6, this_thd_ctx->idx);
+	flexio_dev_print("dst_mac: %lx, index: %d\n", sq_data, this_thd_ctx->idx);
 	// finish_send(dtctx, this_thd_ctx);
 }
