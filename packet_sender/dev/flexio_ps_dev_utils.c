@@ -217,7 +217,7 @@ static void prepare_packet(struct dpa_thread_context* this_thd_ctx, void *sq_dat
     eth_hdr->dst_addr = this_thd_ctx->MAC;
 	uint64_t temp_mac;
 	memcpy(&temp_mac, sq_data, sizeof(uint64_t));
-	flexio_dev_printf("index: %d, dst_mac: %llx\n", this_thd_ctx->idx, temp_mac);
+	flexio_dev_print("index: %d, dst_mac: %llx\n", this_thd_ctx->idx, temp_mac);
 	// 假设 dst_addr 是一个包含 6 个 uint8_t 的数组或可以通过强转当数组访问
 	// uint8_t *mac = (uint8_t *)sq_data;
 	// flexio_dev_print("prepare: dst_mac: %02x:%02x:%02x:%02x:%02x:%02x, index: %d\n", 
