@@ -527,7 +527,7 @@ int copy_sch_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
 }
 
 int copy_thd_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd_ctx, 
-	int buffer_location, uint64_t MAC)
+	int buffer_location, struct ether_addr MAC, uint64_t data_sz)
 {
 	/* Size of application information struct. */
 	uint64_t struct_bsize = sizeof(struct host2dev_packet_processor_data_thd);
@@ -558,6 +558,7 @@ int copy_thd_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
 	printf("copied thread id %d\n", h2d_data->thd_id);
 	h2d_data->buffer_location = buffer_location;
 	h2d_data->MAC = MAC;
+	h2d_data->data_sz = data_sz;
 	h2d_data->window_id = flexio_window_get_id(app_ctx->flexio_window);
 	if (h2d_data->window_id == 0) {
 		printf("failed to allocate window id.\n");
@@ -575,6 +576,9 @@ int copy_thd_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
 				  &thd_ctx->app_data_daddr)) {
 		printf("Failed to copy application information to DPA.\n");
 		ret = -1;
+	} else {
+		uint64_t offset = offsetof(struct host2dev_packet_processor_data_thd, thd_id);
+		thd_ctx->index = thd_ctx->app_data_daddr + offset;
 	}
 	/* Free temporary host memory. */
 	free(h2d_data);

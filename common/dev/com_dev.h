@@ -7,6 +7,7 @@
 
 /* Flex IO SDK device side API header. */
 #include <libflexio-dev/flexio_dev.h>
+#include "flexio_ps_com.h"
 
 #ifndef NULL
 #define NULL (void *)0
@@ -175,5 +176,6 @@ typedef uint32_t uint_test;
 
 inline uint_test calculate_checksum_nrnd(uint_test *data, int length, int round);
 
+__attribute__((unused)) static struct ether_addr SRC_ADDR = { {0x02, 0x01, 0x01, 0x01, 0x01, 0x01} };
 
 #endif

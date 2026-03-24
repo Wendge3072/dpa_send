@@ -86,6 +86,7 @@ struct thread_context {
 	uint32_t num_queues;
 
 	flexio_uintptr_t app_data_daddr;
+	flexio_uintptr_t index;
 
 	uint32_t result_buffer_mkey_id;
 
@@ -160,6 +161,7 @@ struct mlx5_ifc_dr_match_spec_bits {
 extern struct flexio_app *DEV_APP_NAME;
 /* Flex IO packet processor device (DPA) side function stub. */
 extern flexio_func_t thd_ctx_init;
+extern flexio_func_t dpa_send_first_pkt;
 extern flexio_func_t flexio_pp_dev_1;
 extern flexio_func_t flexio_pp_dev_2;
 extern flexio_func_t flexio_scheduler_handle;
@@ -168,7 +170,7 @@ extern size_t scheduler_num;
 extern size_t tenant_per_scheduler;
 extern size_t threads_num;
 extern size_t begin_thread;
-extern uint64_t DMAC;
+extern struct ether_addr DMAC;
 extern size_t buffer_location;
 
 /* Open ibv device
@@ -208,7 +210,7 @@ int copy_sch_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd
  * app_ctx - app_ctx - pointer to app_context structure.
  */
 int copy_thd_data_to_dpa(struct app_context *app_ctx, struct thread_context *thd_ctx, 
-	int buffer_location, uint64_t MAC);
+	int buffer_location, struct ether_addr MAC, uint64_t data_sz);
 
 /* Clean up previously allocated RQ
  * Returns 0 on success and -1 if the destroy failed.

@@ -47,7 +47,7 @@
 /* Convert logarithm to value */
 #define L2V(l) (1UL << (l))
 /* Number of entries in each RQ/SQ/CQ is 2^LOG_Q_DEPTH. */
-#define LOG_Q_DEPTH 6
+#define LOG_Q_DEPTH 7
 #define Q_DEPTH L2V(LOG_Q_DEPTH)
 
 /* Mask for CQ index */
@@ -89,6 +89,38 @@
 #define NVME_QUEUE_ENTRY_SIZE (1024)
 #define NVME_QUEUE_ENTRY_NUM (128)
 #define NVME_QUEUE_MEMORY_SIZE (NVME_QUEUE_ENTRY_SIZE * NVME_QUEUE_ENTRY_NUM)
+
+/* ETH IPv4 UDP Header */
+
+struct ether_addr {
+    uint8_t addr_bytes[6];
+};
+
+struct ether_hdr {
+    struct ether_addr dst_addr;
+    struct ether_addr src_addr;
+    uint16_t ether_type;
+} __attribute__((__packed__));
+
+struct ipv4_hdr {
+    uint8_t version_ihl;
+    uint8_t type_of_service;
+    uint16_t total_length;
+    uint16_t packet_id;
+    uint16_t fragment_offset;
+    uint8_t time_to_live;
+    uint8_t next_proto_id;
+    uint16_t hdr_checksum;
+    uint32_t src_addr;
+    uint32_t dst_addr;
+} __attribute__((__packed__));
+
+struct udp_hdr {
+    uint16_t src_port;
+    uint16_t dst_port;
+    uint16_t dgram_len;
+    uint16_t dgram_cksum;
+} __attribute__((__packed__));
 
 /* Structure for transfer CQ data */
 struct app_transfer_cq {
@@ -132,7 +164,8 @@ struct host2dev_packet_processor_data_thd {
 
 	int thd_id;
 	int buffer_location;
-	uint64_t MAC;
+	struct ether_addr MAC;
+	uint64_t data_sz;
 	uint32_t window_id;
 	uint32_t result_buffer_mkey_id;
 	void* result_buffer;

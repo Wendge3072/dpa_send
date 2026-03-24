@@ -111,6 +111,8 @@ __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data)
 	dpa_thds_ctx[i].rq_lkey = data_from_host->rq_transf.wqd_mkey_id;
 	dpa_thds_ctx[i].window_id = data_from_host->window_id;
 	dpa_thds_ctx[i].idx = i;
+	dpa_thds_ctx[i].MAC = data_from_host->MAC;
+	dpa_thds_ctx[i].data_sz = data_from_host->data_sz;
 	/* Set context for RQ's CQ */
 	com_cq_ctx_init(&(dpa_thds_ctx[i].rq_cq_ctx),
 			data_from_host->rq_cq_transf.cq_num,
@@ -160,13 +162,6 @@ __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data)
     dpa_thds_ctx[i].sq_ctx.sq_wqe_seg_idx = 0;
 	dpa_thds_ctx[i].rq_ctx.rqd_dpa_addr = data_from_host->rq_transf.wqd_daddr;
 	dpa_thds_ctx[i].sq_ctx.sqd_dpa_addr = data_from_host->sq_transf.wqd_daddr;
-	// while(1){};
-	if (i > 0){
-		uint32_t cqn = dpa_thds_ctx[i - 1].rq_cq_ctx.cq_number;
-		flexio_dev_msix_send(dtctx, cqn);
-		flexio_dev_print("thd %d sent msix for cq_num %u\n", i, cqn);
-	}
-	// while(1){};
 	// flexio_dev_status_t ret;
 	// ret = flexio_dev_window_config(dtctx, (uint16_t)dpa_thds_ctx[i].window_id, data_from_host->result_buffer_mkey_id);
 	// if (ret != FLEXIO_DEV_STATUS_SUCCESS) {
@@ -180,6 +175,16 @@ __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data)
 	// if (ret != FLEXIO_DEV_STATUS_SUCCESS) {
 	// 	flexio_dev_print("failed to acquire result ptr, thread %d\n", i);
 	// }
+	return 0;
+}
+
+flexio_dev_rpc_handler_t dpa_send_first_pkt;
+__dpa_rpc__ uint64_t dpa_send_first_pkt(uint64_t data){
+	int *index = (int *)data;
+	struct flexio_dev_thread_ctx *dtctx;
+	flexio_dev_get_thread_ctx(&dtctx);
+	flexio_dev_print("In dpa_send_first_pkt, thd_id: %d\n", *index);
+	send_packet(dtctx, &dpa_thds_ctx[*index]);
 	return 0;
 }
 
@@ -199,5 +204,54 @@ inline void spin_on_status(uint16_t thd_id, eu_status expected_status){
 	do{
 		status = __atomic_load_n(&offload_info[thd_id].status, __ATOMIC_ACQUIRE);
 	}while (status != expected_status);
+}
+
+static void prepare_packet(struct dpa_thread_context* this_thd_ctx, void *sq_data){
+	struct ether_hdr *eth_hdr;
+    struct ipv4_hdr *ip_hdr;
+    struct udp_hdr *udp_hdr;
+
+    eth_hdr = (struct ether_hdr *)sq_data;
+    eth_hdr->src_addr = SRC_ADDR;
+    eth_hdr->dst_addr = this_thd_ctx->MAC;
+    eth_hdr->ether_type = cpu_to_be16(0x0800);
+
+    ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
+    ip_hdr->version_ihl = 0x45;
+    ip_hdr->type_of_service = 0;
+    ip_hdr->total_length = cpu_to_be16(sizeof(uint64_t) * 2 + sizeof(struct udp_hdr) + sizeof(struct ipv4_hdr));
+    ip_hdr->packet_id = cpu_to_be16(dev_ctx.send_index);
+    ip_hdr->fragment_offset = cpu_to_be16(0);
+    ip_hdr->time_to_live = 64;
+    ip_hdr->next_proto_id = 17;
+    ip_hdr->src_addr = cpu_to_be16(1);
+    ip_hdr->dst_addr = cpu_to_be16(1);
+
+    udp_hdr = (struct udp_hdr *)(ip_hdr + 1);
+    udp_hdr->dgram_len = cpu_to_be16(sizeof(uint64_t) * 2 + sizeof(struct udp_hdr));
+    udp_hdr->src_port = cpu_to_be16(1);
+    udp_hdr->dst_port = cpu_to_be16(1);
+}
+
+static void prepare_send_packet(struct dpa_thread_context* this_thd_ctx, void *data_addr, uint32_t data_sz){
+	union flexio_dev_sqe_seg *swqe;
+	
+	swqe = &(this_thd_ctx->sq_ctx.sq_ring[(this_thd_ctx->sq_ctx.sq_wqe_seg_idx + 2) & SQ_IDX_MASK]);
+	this_thd_ctx->sq_ctx.sq_wqe_seg_idx += 4;
+
+	flexio_dev_swqe_seg_mem_ptr_data_set(swqe, data_sz, this_thd_ctx->rq_lkey, (uint64_t)data_addr);
+}
+
+static void finish_send(struct flexio_dev_thread_ctx *dtctx, struct sq_ctx_t *sq_ctx){
+	/* Ring DB */
+	__dpa_thread_memory_writeback();
+	flexio_dev_qp_sq_ring_db(dtctx, ++sq_ctx->sq_pi, sq_ctx->sq_number);
+}
+
+void send_packet(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* this_thd_ctx){
+	char *sq_data = get_next_dte(&this_thd_ctx->dt_ctx, DATA_IDX_MASK, LOG_Q_DATA_ENTRY_BSIZE);
+	prepare_packet(this_thd_ctx, sq_data);
+	prepare_send_packet(this_thd_ctx, sq_data, this_thd_ctx->data_sz);
+	finish_send(dtctx, &this_thd_ctx->sq_ctx);
 }
 

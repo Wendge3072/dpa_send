@@ -31,6 +31,8 @@ struct dpa_thread_context {
 	uint32_t sq_lkey;
 	uint32_t rq_lkey;
 	int buffer_location;
+	struct ether_addr MAC;
+	uint64_t data_sz;
 	uint32_t window_id;
 	uint32_t idx;
 	// NVMe related
@@ -103,5 +105,8 @@ void pp_queue(struct flexio_dev_thread_ctx *dtctx, struct dpa_thread_context* th
 
 flexio_dev_rpc_handler_t thd_ctx_init;
 __dpa_rpc__ uint64_t thd_ctx_init(uint64_t data);
+
+flexio_dev_rpc_handler_t dpa_send_first_pkt;
+__dpa_rpc__ uint64_t dpa_send_first_pkt(uint64_t data);
 
 #endif /* __FLEXIO_PP_DEV_UTILS_H__ */

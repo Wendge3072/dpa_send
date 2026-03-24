@@ -4,7 +4,7 @@ size_t tenants_num = 2;
 size_t threads_num_per_tenant = 8;
 size_t threads_num = 0;
 size_t begin_thread = 16;
-uint64_t DMAC = 0xa088c2320440;
+static struct ether_addr DMAC = { {0xa0, 0x88, 0xc2, 0x32, 0x04, 0x40} };
 size_t buffer_location = 0;
 
 // #define nic_mode 1
@@ -134,7 +134,11 @@ int main(int argc, char **argv)
 	for (int i = 0; i < threads_num; i++) {
 		struct flexio_event_handler_attr handler_attr = {0};
 		uint64_t rpc_ret_val = 0;
-		uint64_t cur_dmac = DMAC + i;
+		struct ether_addr cur_dmac = DMAC;
+		uint16_t mac_0 = (cur_dmac.addr_bytes[4] << 8) | cur_dmac.addr_bytes[5];
+		mac_0 += i;
+		cur_dmac.addr_bytes[4] = (mac_0 >> 8) & 0xFF;
+		cur_dmac.addr_bytes[5] = mac_0 & 0xFF;
 
 		// if(i % 2)
         // 	handler_attr.host_stub_func = flexio_pp_dev_2;
@@ -190,7 +194,7 @@ int main(int argc, char **argv)
 		thd_ctx[i].queues->tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, cur_dmac);
 		thd_ctx[i].queues->tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, cur_dmac);
 
-		if (copy_thd_data_to_dpa(&app_ctx, &(thd_ctx[i]), buffer_location, cur_dmac)) {
+		if (copy_thd_data_to_dpa(&app_ctx, &(thd_ctx[i]), buffer_location, cur_dmac, 512)) {
 			printf("Failed to copy application data to DPA.\n");
 			err = -1;
 			goto cleanup;
@@ -198,12 +202,17 @@ int main(int argc, char **argv)
 		
 		flexio_process_call(app_ctx.flexio_process, &thd_ctx_init, &rpc_ret_val, thd_ctx[i].app_data_daddr);
 
-		if (flexio_event_handler_run(thd_ctx[i].event_handler, thd_ctx[i].app_data_daddr)) {
+		if (flexio_event_handler_run(thd_ctx[i].event_handler, thd_ctx[i].index)) {
 			printf("Failed to run event handler.\n");
 			err = -1;
 			goto cleanup;
 		}
 
+	}
+
+	for (int i = 0; i < threads_num; i++) {
+		uint64_t rpc_ret_val = 0;
+		flexio_process_call(app_ctx.flexio_process, &dpa_send_first_pkt, &rpc_ret_val, thd_ctx[i].index);
 	}
 
 	/* Wait for Enter - the DPA sample is running in the meanwhile */
