@@ -6,7 +6,8 @@ size_t threads_num = 0;
 size_t begin_thread = 16;
 struct ether_addr DMAC = { {0xa0, 0x88, 0xc2, 0x32, 0x04, 0x40} };
 uint64_t DMAC_int = 0xa088c2320440;
-uint64_t SMAC_int = 0x020101010101;
+// uint64_t SMAC_int = 0x020101010101;
+uint64_t SMAC_int = 0xa088c2320440;
 size_t buffer_location = 0;
 
 // #define nic_mode 1
