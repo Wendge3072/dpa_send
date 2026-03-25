@@ -225,21 +225,21 @@ static void prepare_packet(struct dpa_thread_context* this_thd_ctx, void *sq_dat
 	// 				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], this_thd_ctx->idx);
     eth_hdr->ether_type = cpu_to_be16(0x0800);
 
-    ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
-    ip_hdr->version_ihl = 0x45;
-    ip_hdr->type_of_service = 0;
-    ip_hdr->total_length = cpu_to_be16(sizeof(uint64_t) * 2 + sizeof(struct udp_hdr) + sizeof(struct ipv4_hdr));
-    ip_hdr->packet_id = cpu_to_be16(0);
-    ip_hdr->fragment_offset = cpu_to_be16(0);
-    ip_hdr->time_to_live = 64;
-    ip_hdr->next_proto_id = 17;
-    ip_hdr->src_addr = cpu_to_be16(1);
-    ip_hdr->dst_addr = cpu_to_be16(1);
+    // ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
+    // ip_hdr->version_ihl = 0x45;
+    // ip_hdr->type_of_service = 0;
+    // ip_hdr->total_length = cpu_to_be16(sizeof(uint64_t) * 2 + sizeof(struct udp_hdr) + sizeof(struct ipv4_hdr));
+    // ip_hdr->packet_id = cpu_to_be16(0);
+    // ip_hdr->fragment_offset = cpu_to_be16(0);
+    // ip_hdr->time_to_live = 64;
+    // ip_hdr->next_proto_id = 17;
+    // ip_hdr->src_addr = cpu_to_be16(1);
+    // ip_hdr->dst_addr = cpu_to_be16(1);
 
-    udp_hdr = (struct udp_hdr *)(ip_hdr + 1);
-    udp_hdr->dgram_len = cpu_to_be16(sizeof(uint64_t) * 2 + sizeof(struct udp_hdr));
-    udp_hdr->src_port = cpu_to_be16(1);
-    udp_hdr->dst_port = cpu_to_be16(1);
+    // udp_hdr = (struct udp_hdr *)(ip_hdr + 1);
+    // udp_hdr->dgram_len = cpu_to_be16(sizeof(uint64_t) * 2 + sizeof(struct udp_hdr));
+    // udp_hdr->src_port = cpu_to_be16(1);
+    // udp_hdr->dst_port = cpu_to_be16(1);
 }
 
 static void prepare_send_packet(struct dpa_thread_context* this_thd_ctx, void *data_addr, uint32_t data_sz){
