@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 		// 	printf("Fail creating rq_tir_obj (errno %d)\n", errno);
 		// 	goto cleanup;
 		// }
-		thd_ctx[i].queues->rx_flow_rule = create_rule_rx_mac_match(app_ctx.rx_matcher, thd_ctx[i].queues->rq_tir_obj, SMAC_int);	
+		// thd_ctx[i].queues->rx_flow_rule = create_rule_rx_mac_match(app_ctx.rx_matcher, thd_ctx[i].queues->rq_tir_obj, SMAC_int);	
 		thd_ctx[i].queues->tx_flow_rule = create_rule_tx_fwd_to_sws_table(app_ctx.tx_matcher, SMAC_int);
 		thd_ctx[i].queues->tx_flow_rule2 = create_rule_tx_fwd_to_vport(app_ctx.tx_matcher, SMAC_int);
 
